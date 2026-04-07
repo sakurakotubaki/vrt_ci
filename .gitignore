@@ -47,5 +47,5 @@ app.*.map.json
 # FVM
 .fvm/flutter_sdk
 
-# VRT golden test failures
+# VRT golden test failures（差分画像はコミットしない）
 test/failures/
