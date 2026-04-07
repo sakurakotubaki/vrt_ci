@@ -68,7 +68,7 @@ packages:
     source: sdk
     version: "0.0.0"
   golden_test:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: golden_test
       sha256: "4b039c9d9aa807f48e3157d470998d4e2ce2fa2a2445cf9deef9d6ae1ee8d74a"

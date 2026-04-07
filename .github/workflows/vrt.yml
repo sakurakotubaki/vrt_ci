@@ -1,0 +1,32 @@
+name: VRT
+
+on:
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run golden tests
+        run: flutter test --reporter=github
+
+      - name: Upload diff artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures-${{ github.run_id }}
+          path: test/failures/
+          if-no-files-found: ignore

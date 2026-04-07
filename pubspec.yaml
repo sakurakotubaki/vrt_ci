@@ -9,14 +9,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  golden_test: ^0.1.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  golden_test: ^0.1.7
 
 flutter:
   uses-material-design: true
-assets:
-  - assets/images/Dash.png
+  assets:
+    - assets/images/Dash.png
