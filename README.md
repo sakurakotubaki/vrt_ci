@@ -33,8 +33,8 @@ PR (test/vrt → develop)
 
 ## ゴールデン画像の初回生成手順
 
-**必ず Linux 環境（または CI と同じ OS）で実行してください。**  
-macOS と Linux でフォントレンダリングが異なるため、macOS で生成した画像は CI で失敗する場合があります。
+**必ず CI と同じ環境（Ubuntu / `linux/amd64`）で生成してください。**  
+GitHub Actions の `ubuntu-latest` は Linux でレンダリングします。macOS で生成したゴールデン画像はフォント・アンチエイリアスが異なり、CI 上の golden テストが失敗します。
 
 ### ローカル（Linux 環境 / Docker）
 
@@ -48,9 +48,12 @@ ls test/goldens/
 
 ### Docker を使う場合（macOS 開発者向け）
 
+CI（`ubuntu-latest`）と同じ Flutter 3.41.5 の公式に近いイメージを使います。Apple Silicon では `--platform linux/amd64` を付けると GitHub のランナーと一致しやすいです。
+
 ```bash
-docker run --rm -v $(pwd):/app cirrusci/flutter:3.41.5 \
-  sh -c "cd /app && flutter pub get && flutter test --update-goldens"
+docker run --rm --platform linux/amd64 -v "$(pwd)":/app -w /app \
+  ghcr.io/cirruslabs/flutter:3.41.5 \
+  bash -c "flutter pub get && flutter test --update-goldens"
 ```
 
 ### 生成後のコミット
