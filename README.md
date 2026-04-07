@@ -1,54 +1,51 @@
 # vrt_ci
 
-Flutter を使った VRT (Visual Regression Testing) のサンプルプロジェクトです。  
-ゴールデン画像を Git で管理し、外部ストレージなしで PR 間の UI 差分を検出します。
+Flutter の VRT（ゴールデンテスト）サンプルです。  
+ゴールデン画像を Git で管理し、外部ストレージなしで PR の UI 差分を検出します。
+
+**スクリーンショット例:** `HomePage`（アプリ画面）、**変更前（矩形）**の `DashBefore`、**丸抜き（`ClipOval`）**の `DashRounded` を `test/goldens/` に保存します。
 
 ## 環境
 
-| ツール    | バージョン |
-|-----------|-----------|
-| Flutter   | 3.41.5    |
-| Dart      | 3.11.3    |
-| FVM       | 使用中     |
+| 項目    | バージョン |
+|---------|------------|
+| Flutter | 3.41.5     |
+| Dart    | 3.11.3     |
 
-FVM でバージョンを固定しています。
+FVM を使う場合:
 
 ```bash
 fvm use
 flutter pub get
 ```
 
+## ゴールデン画像
+
+| ファイル | 内容 |
+|----------|------|
+| `test/goldens/en/light/HomePage.png` | [HomePage](lib/main.dart)（AppBar + 丸抜きカード） |
+| `test/goldens/en/light/DashBefore.png` | 角丸なし矩形（[DashBeforeCard](lib/dash_preview.dart)） |
+| `test/goldens/en/light/DashRounded.png` | `ClipOval` による丸抜き（[DashRoundedCard](lib/dash_preview.dart)） |
+
+PR の **Files changed** で PNG の画像 diff を確認できます。CI 成功時は Actions の **Artifacts** に `golden-baselines-*` として同じ画像が添付されます。
+
 ## VRT の仕組み
 
 ```
 develop ブランチ
-  └── test/goldens/**/*.png  ← ベースライン画像（Git 管理）
+  └── test/goldens/**/*.png  ← ベースライン（Git 管理）
 
-PR (test/vrt → develop)
+PR → develop
   └── GitHub Actions が flutter test を実行
-        ├── 成功: 画像差分なし → CI グリーン
-        └── 失敗: 画像差分あり → test/failures/ に差分画像を生成
-                                  → Actions の Artifacts からダウンロードして確認
+        ├── 成功: 差分なし → CI グリーン
+        └── 失敗: test/failures/ に差分画像 → Artifacts で確認
 ```
 
-## ゴールデン画像の初回生成手順
+## ゴールデン更新（CI と同じ Linux / amd64）
 
-**必ず CI と同じ環境（Ubuntu / `linux/amd64`）で生成してください。**  
-GitHub Actions の `ubuntu-latest` は Linux でレンダリングします。macOS で生成したゴールデン画像はフォント・アンチエイリアスが異なり、CI 上の golden テストが失敗します。
+**必ず CI と同じ環境で生成してください。** macOS 単体の `--update-goldens` では Ubuntu CI とピクセルがずれることがあります。
 
-### ローカル（Linux 環境 / Docker）
-
-```bash
-# ゴールデン画像を生成・更新する
-flutter test --update-goldens
-
-# 生成されたファイルを確認
-ls test/goldens/
-```
-
-### Docker を使う場合（macOS 開発者向け）
-
-CI（`ubuntu-latest`）と同じ Flutter 3.41.5 の公式に近いイメージを使います。Apple Silicon では `--platform linux/amd64` を付けると GitHub のランナーと一致しやすいです。
+### Docker（macOS 向け）
 
 ```bash
 docker run --rm --platform linux/amd64 -v "$(pwd)":/app -w /app \
@@ -64,28 +61,16 @@ git commit -m "chore: update golden images"
 git push
 ```
 
-## VRT の実行（通常の CI フロー）
-
-PR を develop ブランチへ作成すると GitHub Actions が自動実行されます。
+## ローカルでテスト
 
 ```bash
-# ローカルで確認する場合
 flutter test
 ```
 
-差分が出た場合は `test/failures/` に以下が保存されます。
-
-```
-test/failures/
-  └── goldens/en/light/
-        ├── HomePage_isolatedDiff.png   ← 変化した箇所のみ
-        ├── HomePage_masked.png         ← 変化前
-        └── HomePage_testImage.png      ← 変化後
-```
+差分が出た場合は `test/failures/` に各テスト名に対応した差分 PNG が出力されます。
 
 ## UI を変更したとき
 
-1. UI を変更してローカルで動作確認
-2. `flutter test --update-goldens` でゴールデン画像を更新
-3. 差分画像を確認して意図した変更かチェック
-4. `test/goldens/` をコミットして PR を作成
+1. 変更を確認
+2. 上記 Docker で `flutter test --update-goldens`
+3. 差分を確認してから `test/goldens/` をコミット

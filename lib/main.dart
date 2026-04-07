@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vrt_ci/dash_preview.dart';
 
 void main() {
   runApp(const MainApp());
@@ -26,15 +27,9 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('VRT CI'),
       ),
-      body: Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Image.asset('assets/images/Dash.png'),
-          ),
+      body: const Center(
+        child: DashRoundedCard(),
+      ),
     );
   }
 }
